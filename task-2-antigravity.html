@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANTIGRAVITY. - Break Free From Limits</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #8b5cf6; --bg: #0a0a0f; --surface: #12121a; --text: #ffffff; --text-muted: #a1a1aa; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
+        body { background-color: var(--bg); color: var(--text); overflow-x: hidden; }
+        
+        /* Glassmorphism */
+        .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        
+        /* Navbar */
+        header { position: fixed; width: 100%; top: 0; z-index: 100; padding: 20px 0; transition: all 0.3s ease; }
+        header.scrolled { padding: 15px 0; background: rgba(10,10,15,0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        nav { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: 800; text-decoration: none; color: var(--text); letter-spacing: -1px; }
+        .logo span { color: var(--primary); }
+        .nav-links { display: flex; gap: 32px; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 500; font-size: 15px; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--text); }
+        .cta-btn { background-color: var(--primary); color: white !important; padding: 10px 24px; border-radius: 999px; font-weight: 700; transition: all 0.3s; box-shadow: 0 0 15px rgba(139,92,246,0.4); text-decoration: none; }
+        .cta-btn:hover { box-shadow: 0 0 25px rgba(139,92,246,0.6); transform: translateY(-2px); }
+        .hamburger { display: none; background: none; border: none; font-size: 24px; color: var(--text); cursor: pointer; }
+        
+        /* Hero */
+        .hero { min-height: 100vh; display: flex; align-items: center; position: relative; padding-top: 80px; }
+        /* Background Glows */
+        .glow-violet { position: absolute; top: -10%; left: -10%; width: 50vw; height: 50vw; background: rgba(139,92,246,0.2); border-radius: 50%; filter: blur(100px); z-index: -1; }
+        .glow-indigo { position: absolute; bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: rgba(79,70,229,0.15); border-radius: 50%; filter: blur(100px); z-index: -1; }
+        
+        .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; width: 100%; }
+        .badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 1px; margin-bottom: 24px; color: #d8b4fe; }
+        .badge .dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 10px var(--primary); animation: pulse 2s infinite; }
+        
+        @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.5; } }
+        @keyframes float { 0% { transform: translateY(0); } 50% { transform: translateY(-20px); } 100% { transform: translateY(0); } }
+        
+        .hero h1 { font-size: 80px; line-height: 1; font-weight: 800; letter-spacing: -3px; margin-bottom: 24px; }
+        .gradient-text { background: linear-gradient(to right, #fff, #d8b4fe, #8b5cf6); -webkit-background-clip: text; color: transparent; display: block; }
+        .hero p { font-size: 20px; color: var(--text-muted); margin-bottom: 40px; max-width: 500px; }
+        .hero-buttons { display: flex; gap: 16px; }
+        .btn-outline { text-decoration: none; color: var(--text); padding: 16px 32px; border-radius: 999px; font-weight: 700; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); transition: all 0.2s; }
+        .btn-outline:hover { background: rgba(255,255,255,0.1); }
+        .cta-hero { padding: 16px 32px; }
+        
+        .hero-visual { position: relative; width: 100%; aspect-ratio: 1/1; }
+        .hero-image { width: 100%; height: 100%; border-radius: 24px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 50px rgba(139,92,246,0.2); }
+        
+        .floating-card { position: absolute; padding: 16px; border-radius: 16px; display: flex; align-items: center; gap: 16px; animation: float 6s ease-in-out infinite; }
+        .card-1 { top: 20%; left: -30px; animation-delay: 0s; }
+        .card-2 { bottom: 20%; right: -30px; animation-delay: -3s; }
+        .fc-icon { width: 40px; height: 40px; border-radius: 50%; background: rgba(139,92,246,0.2); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .fc-text p:first-child { font-size: 12px; color: var(--text-muted); }
+        .fc-text p:last-child { font-size: 20px; font-weight: 800; }
+
+        /* Features */
+        .features { padding: 100px 0; position: relative; z-index: 10; }
+        .section-header { text-align: center; margin-bottom: 60px; }
+        .section-header h2 { font-size: 48px; font-weight: 800; margin-bottom: 16px; }
+        .section-header p { font-size: 20px; color: var(--text-muted); }
+        
+        .features-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+        .feature-card { padding: 32px; border-radius: 24px; background: var(--surface); border: 1px solid rgba(255,255,255,0.05); transition: transform 0.3s; }
+        .feature-card:hover { transform: translateY(-5px); background: #1a1a24; }
+        .f-icon { font-size: 32px; margin-bottom: 24px; }
+        .feature-card h3 { font-size: 20px; margin-bottom: 12px; }
+        .feature-card p { color: var(--text-muted); line-height: 1.6; }
+
+        /* Stats */
+        .stats { padding: 60px 0; border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; gap: 24px; }
+        .stat-val { font-size: 48px; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
+        .stat-label { color: var(--text-muted); font-weight: 500; }
+
+        /* Footer */
+        footer { padding: 60px 0; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 100px; }
+        .footer-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px; }
+        .social-links { display: flex; gap: 24px; }
+        .social-links a { color: var(--text-muted); text-decoration: none; font-weight: 500; transition: color 0.2s; }
+        .social-links a:hover { color: var(--primary); }
+
+        @media (max-width: 1024px) {
+            .hero h1 { font-size: 60px; }
+            .features-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .nav-links { display: none; position: absolute; top: 100%; left: 0; width: 100%; background: var(--surface); flex-direction: column; padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+            .nav-links.active { display: flex; }
+            .hamburger { display: block; }
+            .hero-grid { grid-template-columns: 1fr; text-align: center; gap: 40px; padding-top: 40px; }
+            .hero p { margin: 0 auto 32px auto; }
+            .hero-buttons { justify-content: center; flex-direction: column; }
+            .floating-card { position: static; animation: none; width: max-content; margin: 16px auto; }
+            .features-grid, .stats-grid { grid-template-columns: 1fr; }
+            .footer-content { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-violet"></div>
+    <div class="glow-indigo"></div>
+
+    <header id="header">
+        <div class="container">
+            <nav>
+                <a href="#" class="logo">ANTI<span>GRAVITY.</span></a>
+                <div class="nav-links" id="navLinks">
+                    <a href="#">Home</a>
+                    <a href="#services">Services</a>
+                    <a href="#projects">Projects</a>
+                    <a href="#contact">Contact</a>
+                    <a href="#contact" class="cta-btn">Get Started</a>
+                </div>
+                <button class="hamburger" id="hamburgerBtn">☰</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero container">
+            <div class="hero-grid">
+                <div>
+                    <div class="badge glass">
+                        <div class="dot"></div>
+                        NEXT-GEN DIGITAL EXPERIENCE
+                    </div>
+                    <h1>Break Free From <span class="gradient-text">Gravity.</span></h1>
+                    <p>We craft high-performance web experiences that defy limits. Blazing fast, visually stunning, and built to scale.</p>
+                    <div class="hero-buttons">
+                        <a href="#contact" class="cta-btn cta-hero">Launch Project →</a>
+                        <a href="#services" class="btn-outline">Explore Services</a>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <img src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=1200&q=80" alt="Space" class="hero-image">
+                    <div class="floating-card glass card-1">
+                        <div class="fc-icon">⚡</div>
+                        <div class="fc-text"><p>Performance Score</p><p>99/100</p></div>
+                    </div>
+                    <div class="floating-card glass card-2">
+                        <div class="fc-icon">🌐</div>
+                        <div class="fc-text"><p>Global Uptime</p><p>99.9%</p></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="services" class="features container">
+            <div class="section-header">
+                <h2>Why Antigravity?</h2>
+                <p>Cutting-edge technology with bold design.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="f-icon">⚡</div>
+                    <h3>Blazing Fast</h3>
+                    <p>Sub-second load times with SSR.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="f-icon">🛡️</div>
+                    <h3>Secure by Default</h3>
+                    <p>Enterprise-grade security.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="f-icon">🌐</div>
+                    <h3>Global Scale</h3>
+                    <p>Deploy worldwide instantly.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="f-icon">🤖</div>
+                    <h3>AI-Powered</h3>
+                    <p>Intelligent features seamlessly.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats">
+            <div class="container stats-grid">
+                <div><div class="stat-val">200+</div><div class="stat-label">Projects Shipped</div></div>
+                <div><div class="stat-val">99.9%</div><div class="stat-label">Uptime Guaranteed</div></div>
+                <div><div class="stat-val">50ms</div><div class="stat-label">Avg. Response Time</div></div>
+                <div><div class="stat-val">24/7</div><div class="stat-label">Support Available</div></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <div>
+                <a href="#" class="logo">ANTI<span>GRAVITY.</span></a>
+                <p style="color: var(--text-muted); margin-top: 8px; font-size: 14px;">Defying limits, one pixel at a time.</p>
+                <p style="color: var(--text-muted); margin-top: 16px; font-size: 12px;">© 2026 Zurisky Aqsa Firmansyah. Powered by Antigravity.</p>
+            </div>
+            <div class="social-links">
+                <a href="https://instagram.com/zurisky" target="_blank">Instagram</a>
+                <a href="https://linkedin.com/in/zurisky" target="_blank">LinkedIn</a>
+                <a href="https://github.com/zurisky" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) header.classList.add('scrolled');
+            else header.classList.remove('scrolled');
+        });
+
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const navLinks = document.getElementById('navLinks');
+        hamburgerBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            hamburgerBtn.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
+        });
+    </script>
+</body>
+</html>

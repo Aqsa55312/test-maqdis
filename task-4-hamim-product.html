@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAMIM - Program Hafalan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #F97316; --bg: #f9f9f9; --surface: #ffffff; --text: #1a1a1a; --text-muted: #6b7280; --border: #f1f5f9; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+        
+        /* Sidebar Desktop */
+        .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 50; }
+        .brand { padding: 24px; border-bottom: 1px solid var(--border); }
+        .brand h2 { color: var(--primary); font-size: 24px; font-weight: 800; }
+        .menu { padding: 16px; flex: 1; }
+        .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; color: var(--text-muted); text-decoration: none; font-weight: 500; margin-bottom: 8px; transition: all 0.2s; cursor: pointer; }
+        .menu-item:hover, .menu-item.active { background: #fff7ed; color: var(--primary); font-weight: 600; }
+        .sidebar-bottom { padding: 16px; border-top: 1px solid var(--border); }
+        .logout { color: #ef4444; }
+        
+        /* Bottom Nav Mobile */
+        .bottom-nav { display: none; position: fixed; bottom: 0; width: 100%; background: var(--surface); border-top: 1px solid var(--border); z-index: 50; justify-content: space-around; padding: 12px 0; }
+        .bottom-nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); text-decoration: none; font-size: 12px; font-weight: 500; }
+        .bottom-nav-item.active { color: var(--primary); }
+
+        /* Main Content */
+        .main-content { flex: 1; margin-left: 260px; padding: 40px; display: flex; gap: 40px; width: calc(100% - 260px); }
+        
+        /* Product List */
+        .product-list { flex: 1; display: flex; flex-direction: column; gap: 16px; max-width: 400px; }
+        .product-list h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+        .product-card { display: flex; align-items: center; gap: 16px; background: var(--surface); padding: 16px; border-radius: 16px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; text-decoration: none; color: var(--text); }
+        .product-card:hover, .product-card.active { border-color: var(--primary); box-shadow: 0 4px 12px rgba(249,115,22,0.1); }
+        .pc-circle { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 20px; }
+        .pc-info h3 { font-size: 16px; font-weight: 700; }
+        .pc-info p { font-size: 13px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-top: 4px; }
+        
+        /* Product Detail */
+        .product-detail { flex: 1.5; background: var(--surface); border-radius: 24px; padding: 40px; border: 1px solid var(--border); display: none; flex-direction: column; }
+        .product-detail.active { display: flex; }
+        .breadcrumb { font-size: 14px; color: var(--text-muted); margin-bottom: 32px; font-weight: 500; }
+        .pd-header { display: flex; gap: 24px; align-items: flex-start; margin-bottom: 32px; }
+        .pd-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: 700; flex-shrink: 0; }
+        .pd-title-area h2 { font-size: 32px; font-weight: 800; line-height: 1.2; margin-bottom: 8px; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; color: white; }
+        
+        .pd-desc { font-size: 16px; color: var(--text-muted); line-height: 1.6; margin-bottom: 32px; }
+        .pd-price { font-size: 36px; font-weight: 800; color: var(--primary); margin-bottom: 32px; }
+        
+        .pd-features { list-style: none; margin-bottom: 40px; }
+        .pd-features li { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; font-weight: 500; }
+        .check-icon { color: var(--primary); font-size: 20px; }
+        
+        .btn-primary { background: var(--primary); color: white; padding: 16px 32px; border-radius: 999px; font-weight: 700; border: none; font-size: 16px; cursor: pointer; transition: all 0.2s; text-align: center; width: 100%; box-shadow: 0 4px 14px rgba(249,115,22,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(249,115,22,0.4); }
+
+        .empty-state { flex: 1.5; display: flex; align-items: center; justify-content: center; background: var(--surface); border-radius: 24px; border: 1px dashed #cbd5e1; color: var(--text-muted); font-weight: 500; }
+
+        @media (max-width: 900px) {
+            .main-content { flex-direction: column; }
+            .product-list { max-width: 100%; }
+        }
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .bottom-nav { display: flex; }
+            .main-content { margin-left: 0; padding: 20px; padding-bottom: 80px; width: 100%; }
+            .product-detail { padding: 24px; }
+            .pd-header { flex-direction: column; gap: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Desktop Sidebar -->
+    <aside class="sidebar">
+        <div class="brand"><h2>HAMIM</h2></div>
+        <div class="menu">
+            <a href="#" class="menu-item active"><span>📖</span> Hafalan</a>
+            <a href="#" class="menu-item"><span>🏆</span> Peringkat</a>
+            <a href="#" class="menu-item"><span>⚙️</span> Pengaturan</a>
+        </div>
+        <div class="sidebar-bottom">
+            <a href="#" class="menu-item logout"><span>🚪</span> Keluar</a>
+        </div>
+    </aside>
+
+    <!-- Mobile Bottom Nav -->
+    <nav class="bottom-nav">
+        <a href="#" class="bottom-nav-item active"><span>📖</span> Hafalan</a>
+        <a href="#" class="bottom-nav-item"><span>🏆</span> Peringkat</a>
+        <a href="#" class="bottom-nav-item"><span>⚙️</span> Pengaturan</a>
+    </nav>
+
+    <div class="main-content">
+        <!-- List Kiri -->
+        <div class="product-list">
+            <div>
+                <h1>Program Hafalan</h1>
+                <p style="color: var(--text-muted); margin-bottom: 24px;">Pilih program yang sesuai dengan target Anda.</p>
+            </div>
+            
+            <a href="#product-1" class="product-card" id="card-1">
+                <div class="pc-circle" style="background: #F97316;">٣١</div>
+                <div class="pc-info">
+                    <h3>Ayat Pilihan (Free)</h3>
+                    <p style="color: #F97316;">FREE</p>
+                </div>
+            </a>
+            
+            <a href="#product-2" class="product-card" id="card-2">
+                <div class="pc-circle" style="background: #9ca3af;">٢٠٠٢</div>
+                <div class="pc-info">
+                    <h3>10 Hari Hafal Al-Muzzammil</h3>
+                    <p>PREMIUM</p>
+                </div>
+            </a>
+            
+            <a href="#product-3" class="product-card" id="card-3">
+                <div class="pc-circle" style="background: #9ca3af;">٢٠٠٢</div>
+                <div class="pc-info">
+                    <h3>30 Hari Hafal Al-Mulk</h3>
+                    <p>PREMIUM</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Detail Kanan -->
+        <div class="empty-state" id="emptyState">
+            Pilih program hafalan untuk melihat detail.
+        </div>
+        
+        <div class="product-detail" id="productDetail">
+            <div class="breadcrumb">Hafalan / <span id="bcName">Detail</span></div>
+            <div class="pd-header">
+                <div class="pd-circle" id="pdCircle">٣١</div>
+                <div class="pd-title-area">
+                    <h2 id="pdName">Nama Produk</h2>
+                    <span class="badge" id="pdBadge">BADGE</span>
+                </div>
+            </div>
+            <p class="pd-desc" id="pdDesc">Deskripsi</p>
+            <div class="pd-price" id="pdPrice">Rp 0</div>
+            
+            <ul class="pd-features" id="pdFeatures">
+                <!-- Injected via JS -->
+            </ul>
+            
+            <button class="btn-primary" id="pdCta">Mulai Sekarang</button>
+        </div>
+    </div>
+
+    <script>
+        const products = [
+            {
+                id: 1,
+                name: "Ayat Pilihan (Free)",
+                badge: "FREE",
+                badge_color: "#F97316",
+                circle: "٣١",
+                circle_bg: "#F97316",
+                description: "Mulai hafalan dengan ayat-ayat pilihan yang mudah dan cocok untuk pemula. Gratis tanpa biaya apapun.",
+                price: "Rp 0",
+                features: ["31 ayat pilihan", "Metode Irama Maqlis", "Akses selamanya", "Cocok untuk pemula"],
+                cta: "Mulai Sekarang"
+            },
+            {
+                id: 2,
+                name: "10 Hari Hafal Al-Muzzammil",
+                badge: "PREMIUM",
+                badge_color: "#6b7280",
+                circle: "٢٠٠٢",
+                circle_bg: "#9ca3af",
+                description: "Program intensif 10 hari untuk menghafal Surah Al-Muzzammil dengan metode irama yang terbukti efektif.",
+                price: "Rp 200.000",
+                features: ["Surah Al-Muzzammil lengkap", "Program 10 hari terstruktur", "Metode Irama Maqlis", "Sertifikat kelulusan", "Support mentor"],
+                cta: "Daftar Sekarang"
+            },
+            {
+                id: 3,
+                name: "30 Hari Hafal Al-Mulk",
+                badge: "PREMIUM",
+                badge_color: "#6b7280",
+                circle: "٢٠٠٢",
+                circle_bg: "#9ca3af",
+                description: "Program 30 hari komprehensif untuk menghafal Surah Al-Mulk secara menyeluruh dan mendalam.",
+                price: "Rp 200.000",
+                features: ["Surah Al-Mulk lengkap", "Program 30 hari terstruktur", "Metode Irama Maqlis", "Sertifikat kelulusan", "Support mentor", "Akses materi selamanya"],
+                cta: "Daftar Sekarang"
+            }
+        ];
+
+        function renderProduct() {
+            const hash = window.location.hash; // e.g. #product-1
+            const id = hash ? parseInt(hash.replace('#product-', '')) : null;
+            
+            // Reset active classes
+            document.querySelectorAll('.product-card').forEach(c => c.classList.remove('active'));
+            
+            if (!id || !products.find(p => p.id === id)) {
+                document.getElementById('emptyState').style.display = 'flex';
+                document.getElementById('productDetail').classList.remove('active');
+                return;
+            }
+
+            const product = products.find(p => p.id === id);
+            
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('productDetail').classList.add('active');
+            document.getElementById(`card-${id}`).classList.add('active');
+
+            // Populate Data
+            document.getElementById('bcName').textContent = product.name;
+            document.getElementById('pdName').textContent = product.name;
+            document.getElementById('pdCircle').textContent = product.circle;
+            document.getElementById('pdCircle').style.background = product.circle_bg;
+            document.getElementById('pdBadge').textContent = product.badge;
+            document.getElementById('pdBadge').style.background = product.badge_color;
+            document.getElementById('pdDesc').textContent = product.description;
+            document.getElementById('pdPrice').textContent = product.price;
+            document.getElementById('pdCta').textContent = product.cta;
+
+            const ul = document.getElementById('pdFeatures');
+            ul.innerHTML = '';
+            product.features.forEach(f => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="check-icon">✓</span> ${f}`;
+                ul.appendChild(li);
+            });
+        }
+
+        // Listen for hash changes
+        window.addEventListener('hashchange', renderProduct);
+        
+        // Initial render
+        renderProduct();
+    </script>
+</body>
+</html>

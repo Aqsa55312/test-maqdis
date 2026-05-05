@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAMIM - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --primary: #F97316; --bg: #f9f9f9; --surface: #ffffff; --text: #1a1a1a; --text-muted: #6b7280; --border: #f1f5f9; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); display: flex; min-height: 100vh; overflow-x: hidden; }
+        
+        /* Sidebar */
+        .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 50; transition: transform 0.3s; }
+        .brand { padding: 24px; border-bottom: 1px solid var(--border); }
+        .brand h2 { color: var(--primary); font-size: 24px; font-weight: 800; letter-spacing: -1px; }
+        .brand p { color: var(--text-muted); font-size: 12px; font-weight: 500; }
+        
+        .menu { padding: 16px; flex: 1; overflow-y: auto; }
+        .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; color: var(--text-muted); text-decoration: none; font-weight: 500; margin-bottom: 8px; transition: all 0.2s; cursor: pointer; }
+        .menu-item:hover { background: #fff7ed; color: var(--primary); }
+        .menu-item.active { background: #fff7ed; color: var(--primary); font-weight: 600; }
+        .menu-icon { font-size: 20px; }
+        
+        .sidebar-bottom { padding: 16px; border-top: 1px solid var(--border); }
+        .logout { color: #ef4444; }
+        .logout:hover { background: #fef2f2; }
+
+        /* Main Content */
+        .main-content { flex: 1; margin-left: 260px; display: flex; flex-direction: column; width: calc(100% - 260px); }
+        
+        /* Topbar */
+        .topbar { height: 80px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: sticky; top: 0; z-index: 40; }
+        .topbar h1 { font-size: 20px; font-weight: 700; }
+        .user-profile { display: flex; align-items: center; gap: 12px; }
+        .user-name { font-weight: 500; color: var(--text-muted); font-size: 14px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; box-shadow: 0 4px 10px rgba(249,115,22,0.2); }
+        .hamburger { display: none; background: none; border: none; font-size: 24px; cursor: pointer; }
+
+        /* Dashboard Body */
+        .dashboard-body { padding: 32px; gap: 24px; display: flex; flex-direction: column; }
+        
+        /* Stat Cards */
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .stat-card { border-radius: 20px; padding: 24px; color: white; position: relative; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+        .stat-card.c1 { background: #fb923c; }
+        .stat-card.c2 { background: #4ade80; }
+        .stat-card.c3 { background: #60a5fa; }
+        .stat-icon { position: absolute; right: -10%; top: -10%; font-size: 120px; opacity: 0.2; transform: rotate(15deg); }
+        .stat-card h3 { font-size: 14px; font-weight: 500; opacity: 0.9; margin-bottom: 4px; position: relative; z-index: 2; }
+        .stat-card p.subtitle { font-size: 12px; opacity: 0.7; margin-bottom: 16px; position: relative; z-index: 2; }
+        .stat-card p.value { font-size: 32px; font-weight: 800; position: relative; z-index: 2; }
+
+        /* Chart & Panels */
+        .content-row { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+        .card { background: var(--surface); border-radius: 20px; padding: 24px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .card-header h3 { font-size: 16px; font-weight: 700; }
+        
+        .side-panels { display: flex; flex-direction: column; gap: 24px; }
+        .panel { background: var(--surface); border-radius: 20px; padding: 24px; border: 1px solid var(--border); }
+        .panel h3 { font-size: 14px; font-weight: 700; margin-bottom: 24px; max-width: 200px; line-height: 1.4; }
+        .panel-val { display: flex; justify-content: space-between; align-items: flex-end; }
+        .panel-val .num { font-size: 48px; font-weight: 800; line-height: 1; }
+        .panel-label { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-muted); font-weight: 500; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+
+        /* Overlay */
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 45; }
+
+        @media (max-width: 1024px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .content-row { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; width: 100%; }
+            .hamburger { display: block; }
+            .stats-row { grid-template-columns: 1fr; }
+            .topbar { padding: 0 20px; }
+            .dashboard-body { padding: 20px; }
+            .user-name { display: none; }
+            .overlay.open { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay" id="overlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <h2>HAMIM</h2>
+            <p>Hafalan Al-Quran</p>
+        </div>
+        <div class="menu">
+            <a href="#" class="menu-item active"><span class="menu-icon">📊</span> Dashboard</a>
+            <a href="#" class="menu-item"><span class="menu-icon">📈</span> Statistik</a>
+            <a href="#" class="menu-item"><span class="menu-icon">📖</span> Setoran</a>
+            
+            <div style="font-size: 11px; font-weight: 700; color: #9ca3af; margin: 24px 0 8px 16px; text-transform: uppercase;">Apps And Content</div>
+            <div class="menu-item"><span class="menu-icon">📱</span> Kelola Apps ▾</div>
+            
+            <div style="font-size: 11px; font-weight: 700; color: #9ca3af; margin: 24px 0 8px 16px; text-transform: uppercase;">Lainnya</div>
+            <div class="menu-item"><span class="menu-icon">☰</span> Menu Event</div>
+        </div>
+        <div class="sidebar-bottom">
+            <a href="#" class="menu-item logout"><span class="menu-icon">🚪</span> Keluar</a>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <header class="topbar">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button class="hamburger" id="hamburgerBtn">☰</button>
+                <h1>Dashboard</h1>
+            </div>
+            <div class="user-profile">
+                <span class="user-name">Admin 02. Hamim</span>
+                <div class="avatar">H</div>
+            </div>
+        </header>
+
+        <div class="dashboard-body">
+            <div class="stats-row">
+                <div class="stat-card c1">
+                    <div class="stat-icon">👥</div>
+                    <h3>Total User</h3>
+                    <p class="subtitle">Keseluruhan</p>
+                    <p class="value">50.050</p>
+                </div>
+                <div class="stat-card c2">
+                    <div class="stat-icon">🔑</div>
+                    <h3>Kode Aktivasi</h3>
+                    <p class="subtitle">Tersedia</p>
+                    <p class="value">63.123</p>
+                </div>
+                <div class="stat-card c3">
+                    <div class="stat-icon">🏦</div>
+                    <h3>Total Pendapatan / Tahun</h3>
+                    <p class="subtitle">Tahun 2025</p>
+                    <p class="value">Rp.17.144.000</p>
+                </div>
+            </div>
+
+            <div class="content-row">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Statistik User Hamim Dalam Satu Tahun</h3>
+                        <select style="padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); outline: none;">
+                            <option>2024</option>
+                            <option>2025</option>
+                        </select>
+                    </div>
+                    <canvas id="myChart" height="100"></canvas>
+                </div>
+
+                <div class="side-panels">
+                    <div class="panel">
+                        <h3>User Hamim Dalam 7 Hari Terakhir</h3>
+                        <div class="panel-val">
+                            <span class="num">127</span>
+                            <div class="panel-label">
+                                <span class="dot" style="background: #60a5fa;"></span> User Baru
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <h3>User Hamim Sedang Aktif</h3>
+                        <div class="panel-val">
+                            <span class="num">12</span>
+                            <div class="panel-label">
+                                <span class="dot" style="background: #4ade80;"></span> User Aktif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile Sidebar
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+        }
+
+        hamburgerBtn.addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', toggleSidebar);
+
+        // Chart.js Setup
+        const ctx = document.getElementById('myChart').getContext('2d');
+        
+        // Gradient for New User
+        let gradientNew = ctx.createLinearGradient(0, 0, 0, 400);
+        gradientNew.addColorStop(0, 'rgba(96, 165, 250, 0.5)');
+        gradientNew.addColorStop(1, 'rgba(96, 165, 250, 0)');
+
+        // Gradient for Active User
+        let gradientActive = ctx.createLinearGradient(0, 0, 0, 400);
+        gradientActive.addColorStop(0, 'rgba(249, 115, 22, 0.5)');
+        gradientActive.addColorStop(1, 'rgba(249, 115, 22, 0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"],
+                datasets: [
+                    {
+                        label: 'User Aktif',
+                        data: [50,80,120,100,130,110,90,140,120,100,130,150],
+                        borderColor: '#f97316',
+                        backgroundColor: gradientActive,
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 6
+                    },
+                    {
+                        label: 'User Baru',
+                        data: [80,120,280,150,200,170,130,190,160,140,180,200],
+                        borderColor: '#60a5fa',
+                        backgroundColor: gradientNew,
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                interaction: { mode: 'index', intersect: false },
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, border: { display: false } },
+                    y: { grid: { color: '#f1f5f9', borderDash: [5, 5] }, border: { display: false }, beginAtZero: true }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
