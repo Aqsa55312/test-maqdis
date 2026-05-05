@@ -1,19 +1,15 @@
-import { products } from "@/data/products";
-import ProductCard from "@/components/ProductCard";
+import Navbar from "@/components/nextlevel/Navbar";
+import Hero from "@/components/nextlevel/Hero";
+import Footer from "@/components/nextlevel/Footer";
 
 export default function Home() {
   return (
-    <div className="p-6 md:p-10 max-w-7xl mx-auto">
-      <header className="mb-10">
-        <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 mb-2 tracking-tight">Program Hafalan</h1>
-        <p className="text-slate-500">Pilih program yang sesuai dengan target Anda.</p>
-      </header>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+    <div className="min-h-screen bg-white flex flex-col font-[family-name:var(--font-jakarta)]">
+      <Navbar />
+      <main className="flex-grow">
+        <Hero />
+      </main>
+      <Footer />
     </div>
   );
 }
